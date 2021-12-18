@@ -2,6 +2,10 @@
 
 This is a simple web application that allows the user to search through the Pokémon data provided by the [PokéAPI](https://pokeapi.co), displaying the available data once a Pokémon is selected.
 
+## Live demo
+
+Deployed with [Netlify](https://v-pokedex-app.netlify.app/).
+
 ## Project setup
 
 ```
