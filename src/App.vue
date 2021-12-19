@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const searchValue = ref<string>( '' )
 const pokemonData = ref<PokemonDataInterface | null>( null )
@@ -49,19 +49,41 @@ const fetchPokemonData = async (
     pokemonData.value = data
   } catch ( error ) {
     console.error( error )
+    pokemonData.value = null
   }
 }
 
-const selectAdjacentPokemon = async ( event: Event, position: string ) => {
-  if ( pokemonData.value?.id ) {
-    const queryTerm =
-      position === 'previous'
-        ? ( pokemonData.value.id - 1 ).toString()
-        : ( pokemonData.value.id + 1 ).toString()
-    await fetchPokemonData( event, 'pokemon', queryTerm )
-    searchValue.value = queryTerm
+const selectAdjacentPokemon = ( event: Event, position: string ) => {
+  const queryTerm = () => {
+    if ( pokemonData.value?.id ) {
+      if ( position === 'prev' && pokemonData.value.id === 1 ) return '898'
+      if ( position === 'next' && pokemonData.value.id === 898 ) return '1'
+      if ( position === 'prev' ) return ( pokemonData.value.id - 1 ).toString()
+      if ( position === 'next' ) return ( pokemonData.value.id + 1 ).toString()
+    }
+    return ''
   }
+  fetchPokemonData( event, 'pokemon', queryTerm() )
+  searchValue.value = queryTerm()
 }
+
+onMounted( () => {
+  window.addEventListener( 'keydown', ( event: KeyboardEvent ) => {
+    const target = event.target as HTMLElement
+    if ( !pokemonData.value || target.tagName === 'INPUT' ) return
+
+    switch ( event.key ) {
+      case 'ArrowLeft':
+        selectAdjacentPokemon( event, 'prev' )
+        break
+      case 'ArrowRight':
+        selectAdjacentPokemon( event, 'next' )
+        break
+      default:
+        break
+    }
+  })
+})
 </script>
 
 <template>
@@ -98,12 +120,8 @@ const selectAdjacentPokemon = async ( event: Event, position: string ) => {
             {{ type.name }}
           </li>
         </ul>
-        <button @click="selectAdjacentPokemon($event, 'previous')">
-          Previous
-        </button>
-        <button @click="selectAdjacentPokemon($event, 'next')">
-          Next
-        </button>
+        <button @click="selectAdjacentPokemon($event, 'prev')">Previous</button>
+        <button @click="selectAdjacentPokemon($event, 'next')">Next</button>
       </div>
     </div>
   </main>
