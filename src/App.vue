@@ -11,8 +11,10 @@ const idWithLeadingZeros = computed( () => {
 })
 const capitalizedName = computed( () => {
   if ( pokemonData.value?.name ) {
-    return pokemonData.value.name.charAt( 0 ).toUpperCase() +
+    return (
+      pokemonData.value.name.charAt( 0 ).toUpperCase() +
       pokemonData.value.name.slice( 1 )
+    )
   }
   return ''
 })
@@ -20,11 +22,12 @@ const capitalizedName = computed( () => {
 interface TypeInterface {
   type: {
     name: string
+    url: string
   }
 }
 
 interface PokemonDataInterface {
-  id: string
+  id: number
   name: string
   types: TypeInterface[]
   sprites: {
@@ -32,16 +35,31 @@ interface PokemonDataInterface {
   }
 }
 
-const fetchPokemonData = async () => {
+const fetchPokemonData = async (
+  event: Event,
+  queryType = 'pokemon',
+  queryTerm = searchValue.value,
+) => {
   const apiUrl = 'https://pokeapi.co/api/v2'
   try {
     const response = await fetch(
-      `${ apiUrl }/pokemon/${ searchValue.value.toLowerCase() }`,
+      `${ apiUrl }/${ queryType }/${ queryTerm.toLowerCase() }`,
     )
     const data = await response.json()
     pokemonData.value = data
   } catch ( error ) {
     console.error( error )
+  }
+}
+
+const selectAdjacentPokemon = async ( event: Event, position: string ) => {
+  if ( pokemonData.value?.id ) {
+    const queryTerm =
+      position === 'previous'
+        ? ( pokemonData.value.id - 1 ).toString()
+        : ( pokemonData.value.id + 1 ).toString()
+    await fetchPokemonData( event, 'pokemon', queryTerm )
+    searchValue.value = queryTerm
   }
 }
 </script>
@@ -80,6 +98,12 @@ const fetchPokemonData = async () => {
             {{ type.name }}
           </li>
         </ul>
+        <button @click="selectAdjacentPokemon($event, 'previous')">
+          Previous
+        </button>
+        <button @click="selectAdjacentPokemon($event, 'next')">
+          Next
+        </button>
       </div>
     </div>
   </main>
