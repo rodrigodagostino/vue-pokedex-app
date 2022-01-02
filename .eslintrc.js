@@ -38,7 +38,7 @@ module.exports = {
     'computed-property-spacing': [ 'error', 'always' ],
     'eol-last': 'error',
     'func-call-spacing': 'error',
-    '@typescript-eslint/indent': [ 'error', 2 ],
+    '@typescript-eslint/indent': [ 'error', 2, { SwitchCase: 1 } ],
     'key-spacing': [ 'error', { afterColon: true } ],
     'max-len': [ 'error', { code: 80 } ],
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
